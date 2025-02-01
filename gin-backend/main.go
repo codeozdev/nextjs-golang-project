@@ -2,8 +2,24 @@ package main
 
 import (
 	"fmt"
+
 	"github.com/gin-gonic/gin"
 )
+
+func CORSMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
+
+		if c.Request.Method == "OPTIONS" {
+			c.AbortWithStatus(204)
+			return
+		}
+
+		c.Next()
+	}
+}
 
 func main() {
 
@@ -20,9 +36,19 @@ func main() {
 	}
 
 	r := gin.Default()
+	r.Use(CORSMiddleware()) // CORS Middleware’i ekle
 
+	// ************ GET ************
 	// Tüm kullanıcıları getir
 	r.GET("/users", func(c *gin.Context) {
+
+		if len(users) == 0 {
+			c.JSON(404, gin.H{
+				"error": "Kullanıcı bulunamadı",
+			})
+			return
+		}
+
 		c.JSON(200, gin.H{
 			"users":   users,
 			"status":  "success",
@@ -43,6 +69,26 @@ func main() {
 		}
 		c.JSON(404, gin.H{
 			"error": "Kullanıcı bulunamadı",
+		})
+	})
+
+	// ************ POST ************
+	r.POST("/users", func(c *gin.Context) {
+		var newUser User
+
+		// Gelen JSON verisini newUser struct'ına bağla
+		if err := c.ShouldBindJSON(&newUser); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		// Yeni kullanıcıya bir ID ata ve listeye ekle
+		newUser.ID = len(users) + 1
+		users = append(users, newUser)
+		c.JSON(201, gin.H{
+			"status":  "success",
+			"message": "Kullanıcı başarıyla eklendi",
+			//"user":    newUser, // Eklenen kullanıcıyı döndür (isteğe bağlı)
 		})
 	})
 

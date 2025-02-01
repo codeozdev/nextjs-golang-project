@@ -1,5 +1,5 @@
-import { getUser } from "@/fetchData/get-user";
 import DynamicTitle from "@/components/DynamicTitle";
+import { getUser } from "@/fetchData/get-user";
 
 export { getUser } from "@/fetchData/get-user";
 
@@ -7,7 +7,6 @@ export default async function UserPage({ params }: { params: { id: string } }) {
   const { id } = await params;
   const { user } = await getUser(id);
 
-  console.log(user);
   return (
     <div>
       <DynamicTitle title="USER PAGE" />
