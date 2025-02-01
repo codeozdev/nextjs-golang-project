@@ -4,6 +4,8 @@
 # Next.js (Frontend) için
 # ----------------------
 
+/.vscode
+
 # Next.js build output
 /gin-frontend/.next
 /gin-frontend/.idea 
