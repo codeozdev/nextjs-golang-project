@@ -27,6 +27,7 @@
 
 # Go binary files
 /gin-backend/bin
+/gin-backend/.idea
 
 # Go dependencies
 /gin-backend/vendor
