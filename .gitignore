@@ -1,0 +1,48 @@
+# .gitignore
+
+# ----------------------
+# Next.js (Frontend) için
+# ----------------------
+
+# Next.js build output
+/gin-frontend/.next
+/gin-frontend/.idea 
+
+# Node.js dependencies
+/gin-frontend/node_modules
+
+# Local environment variables
+/gin-frontend/.env
+/gin-frontend/.env.local
+/gin-frontend/.env.*.local
+
+# Debug log files
+/gin-frontend/npm-debug.log
+/gin-frontend/yarn-debug.log
+/gin-frontend/yarn-error.log
+
+# ----------------------
+# Go (Backend) için
+# ----------------------
+
+# Go binary files
+/gin-backend/bin
+
+# Go dependencies
+/gin-backend/vendor
+
+# Local environment variables
+/gin-backend/.env
+
+# Go build artifacts
+/gin-backend/*.exe
+/gin-backend/*.test
+
+# ----------------------
+# Diğer genel dosyalar
+# ----------------------
+
+
+
+# Log dosyaları
+*.log
