@@ -1,4 +1,4 @@
-import EditForm from "@/components/user/edit-form";
+import UpdateForm from "@/components/user/update-form";
 import { getUser } from "@/fetchData/get-user";
 
 export default async function UsersGuncelle({
@@ -11,7 +11,7 @@ export default async function UsersGuncelle({
 
   return (
     <div>
-      <EditForm user={user} />
+      <UpdateForm user={user} />
     </div>
   );
 }

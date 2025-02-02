@@ -1,4 +1,0 @@
-- ekleme sonrasi yonlendirme yapilacak
-- ekleme formu olusturulacak
-- eklenen veya guncellenen isimler kucuk harfle yazilacak
-- mail kontrolu yapilacak

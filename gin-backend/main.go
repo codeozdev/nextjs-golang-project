@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"strconv"
+	"strings"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -29,9 +30,9 @@ func main() {
 	}
 
 	var users = []User{
-		{ID: 1, Name: "Ahmet", Email: "ahmet@example.com"},
-		{ID: 2, Name: "Mehmet", Email: "mehmet@example.com"},
-		{ID: 3, Name: "Ayşe", Email: "ayse@example.com"},
+		{ID: 1, Name: "ahmet", Email: "ahmet@example.com"},
+		{ID: 2, Name: "mehmet", Email: "mehmet@example.com"},
+		{ID: 3, Name: "ayşe", Email: "ayse@example.com"},
 	}
 
 	r := gin.Default()
@@ -96,6 +97,28 @@ func main() {
 			return
 		}
 
+		// Kullanıcı adı ve e-postayı küçük harfe çevir
+		newUser.Name = strings.ToLower(newUser.Name)
+		newUser.Email = strings.ToLower(newUser.Email)
+
+		// E-posta adresinde @ sembolü olup olmadığını kontrol et
+		if !strings.Contains(newUser.Email, "@") {
+			c.JSON(400, gin.H{
+				"error": "Geçersiz email adresi",
+			})
+			return
+		}
+
+		// E-posta adresinin benzersiz olup olmadığını kontrol et
+		for _, user := range users {
+			if user.Email == newUser.Email {
+				c.JSON(400, gin.H{
+					"error": "Bu e-posta adresi zaten kullanımda",
+				})
+				return
+			}
+		}
+
 		// Yeni kullanıcıya bir ID ata ve listeye ekle
 		newUser.ID = len(users) + 1
 		users = append(users, newUser)
@@ -106,7 +129,7 @@ func main() {
 		})
 	})
 
-	// ************ PUT ************
+	// ************ PATCH ************
 	r.PATCH("/users/:id", func(c *gin.Context) {
 		id := c.Param("id")
 		var updates map[string]interface{}

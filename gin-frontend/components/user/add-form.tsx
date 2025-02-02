@@ -2,15 +2,15 @@
 
 import DynamicTitle from "@/components/DynamicTitle";
 import React, { useState } from "react";
-import { UserProps } from "@/types/UserType";
 import { useRouter } from "next/navigation";
 
-export default function EditForm({ user }: { user: UserProps }) {
+export default function AddForm() {
+  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const [formData, setFormData] = useState({
-    name: user.name,
-    email: user.email,
+    name: "",
+    email: "",
   });
 
   const { name, email } = formData;
@@ -22,16 +22,17 @@ export default function EditForm({ user }: { user: UserProps }) {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setError(null); // Form gönderildiğinde hata mesajını temizle
 
     try {
       if (!name || !email) {
-        console.log("Please fill all fields");
+        setError("Please fill all fields");
         return;
       }
 
-      const res = await fetch(`http://0.0.0.0:8080/users/${user.id}`, {
+      const res = await fetch("http://0.0.0.0:8080/users", {
         cache: "no-store",
-        method: "PATCH",
+        method: "POST",
         body: JSON.stringify(formData),
         headers: {
           "Content-Type": "application/json",
@@ -42,11 +43,18 @@ export default function EditForm({ user }: { user: UserProps }) {
 
       if (!res.ok) {
         console.log(data.error);
+        setError(data.error);
       }
 
-      if (res.status === 200) {
+      if (res.status === 400) {
+        setError(data.error);
+        console.log(data.error);
+        return;
+      }
+
+      if (res.status === 201) {
         console.log(data.message);
-        router.push(`/users/${user.id}`);
+        router.push(`/users`);
       }
     } catch (error) {
       console.error(error);
@@ -55,7 +63,7 @@ export default function EditForm({ user }: { user: UserProps }) {
 
   return (
     <div>
-      <DynamicTitle title="USER GUNCELLE PAGE" />
+      <DynamicTitle title="USER EKLE PAGE" />
       <form
         className="flex flex-col gap-2 w-1/2 mx-auto text-black"
         onSubmit={handleSubmit}
@@ -74,10 +82,16 @@ export default function EditForm({ user }: { user: UserProps }) {
           value={email}
           onChange={handleChange}
         />
-        <button type="submit" className="bg-yellow-600 text-white">
-          GUNCELLE
+        <button type="submit" className="bg-green-500">
+          EKLE
         </button>
       </form>
+      {/* Hata mesajını göster */}
+      {error && (
+        <div className="mt-4 text-center text-red-500">
+          <p>{error}</p>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 import UsersComponent from "@/components/UsersComponent";
-import { User } from "@/types/UserType";
+import { UserProps } from "@/types/UserType";
 import { getAllUser } from "@/fetchData/get-user";
 import DynamicTitle from "@/components/DynamicTitle";
 import Link from "next/link";
@@ -18,7 +18,7 @@ export default async function UsersPage() {
           SIL
         </Link>
       </div>
-      {users.map((user: User) => (
+      {users.map((user: UserProps) => (
         <UsersComponent key={user.id} user={user} />
       ))}
     </div>
