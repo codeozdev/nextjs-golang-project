@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-
 	"github.com/gin-gonic/gin"
+	"strconv"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -22,7 +22,6 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func main() {
-
 	type User struct {
 		ID    int    `json:"id"`
 		Name  string `json:"name"`
@@ -36,7 +35,8 @@ func main() {
 	}
 
 	r := gin.Default()
-	r.Use(CORSMiddleware()) // CORS Middleware’i ekle
+	r.Use(CORSMiddleware())                                      // CORS Middleware’i ekle
+	r.SetTrustedProxies([]string{"192.168.1.0/24", "127.0.0.1"}) // Güvenilir proxy'leri ayarla
 
 	// ************ GET ************
 	// Tüm kullanıcıları getir
@@ -51,24 +51,38 @@ func main() {
 
 		c.JSON(200, gin.H{
 			"users":   users,
-			"status":  "success",
+			"status":  "200",
 			"message": "Kullanıcılar başarıyla getirildi",
 		})
 	})
 
-	// ID'ye göre kullanıcı getir
+	// ID'ye göre kullanıcı getir (parametreden veriyi aldik)
 	r.GET("/users/:id", func(c *gin.Context) {
-		id := c.Param("id")
+		idParam := c.Param("id")
+		id, err := strconv.Atoi(idParam) // string'i integer'a çevir
+		if err != nil {
+			c.JSON(400, gin.H{
+				"error":   "Geçersiz ID",
+				"message": "ID bir sayı olmalıdır",
+			})
+			return
+		}
+
 		for _, user := range users {
-			if fmt.Sprint(user.ID) == id {
+			if user.ID == id {
 				c.JSON(200, gin.H{
-					"user": user,
+					"user":    user,
+					"status":  "200",
+					"message": "Kullanıcı başarıyla getirildi",
 				})
 				return
 			}
 		}
+
+		// Kullanıcı bulunamazsa
 		c.JSON(404, gin.H{
-			"error": "Kullanıcı bulunamadı",
+			"error":   "Kullanıcı bulunamadı",
+			"message": fmt.Sprintf("%d ID'li kullanıcı bulunamadı", id),
 		})
 	})
 
