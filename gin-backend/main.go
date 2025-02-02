@@ -9,7 +9,7 @@ import (
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
-		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
+		c.Writer.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, PATCH, DELETE, OPTIONS")
 		c.Writer.Header().Set("Access-Control-Allow-Headers", "Origin, Content-Type, Authorization")
 
 		if c.Request.Method == "OPTIONS" {
@@ -104,6 +104,39 @@ func main() {
 			"message": "Kullanıcı başarıyla eklendi",
 			//"user":    newUser, // Eklenen kullanıcıyı döndür (isteğe bağlı)
 		})
+	})
+
+	// ************ PUT ************
+	r.PATCH("/users/:id", func(c *gin.Context) {
+		id := c.Param("id")
+		var updates map[string]interface{}
+
+		if err := c.ShouldBindJSON(&updates); err != nil {
+			c.JSON(400, gin.H{"error": err.Error()})
+			return
+		}
+
+		for i, user := range users {
+			if fmt.Sprint(user.ID) == id {
+				// Sadece belirtilen alanları güncelle
+				for key, value := range updates {
+					switch key {
+					case "name":
+						users[i].Name = value.(string)
+					case "email":
+						users[i].Email = value.(string)
+					}
+				}
+				c.JSON(200, gin.H{
+					"status":  "success",
+					"message": "Kullanıcı başarıyla güncellendi",
+					"user":    users[i],
+				})
+				return
+			}
+		}
+
+		c.JSON(404, gin.H{"error": "Kullanıcı bulunamadı"})
 	})
 
 	r.Run(":8080")

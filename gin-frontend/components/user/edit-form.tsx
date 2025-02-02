@@ -1,13 +1,16 @@
 "use client";
 
 import DynamicTitle from "@/components/DynamicTitle";
-
 import React, { useState } from "react";
+import { UserProps } from "@/types/UserType";
+import { useRouter } from "next/navigation";
 
-export default function UsersEkle() {
+export default function EditForm({ user }: { user: UserProps }) {
+  const router = useRouter();
+
   const [formData, setFormData] = useState({
-    name: "",
-    email: "",
+    name: user.name,
+    email: user.email,
   });
 
   const { name, email } = formData;
@@ -26,9 +29,9 @@ export default function UsersEkle() {
         return;
       }
 
-      const res = await fetch("http://0.0.0.0:8080/users", {
+      const res = await fetch(`http://0.0.0.0:8080/users/${user.id}`, {
         cache: "no-store",
-        method: "POST",
+        method: "PATCH",
         body: JSON.stringify(formData),
         headers: {
           "Content-Type": "application/json",
@@ -36,14 +39,14 @@ export default function UsersEkle() {
       });
 
       const data = await res.json();
-      console.log(data);
 
       if (!res.ok) {
-        console.log("Error");
+        console.log(data.error);
       }
 
       if (res.status === 200) {
         console.log(data.message);
+        router.push(`/users/${user.id}`);
       }
     } catch (error) {
       console.error(error);
@@ -52,7 +55,7 @@ export default function UsersEkle() {
 
   return (
     <div>
-      <DynamicTitle title="USER EKLE PAGE" />
+      <DynamicTitle title="USER GUNCELLE PAGE" />
       <form
         className="flex flex-col gap-2 w-1/2 mx-auto text-black"
         onSubmit={handleSubmit}
@@ -71,8 +74,8 @@ export default function UsersEkle() {
           value={email}
           onChange={handleChange}
         />
-        <button type="submit" className="bg-green-500">
-          EKLE
+        <button type="submit" className="bg-yellow-600 text-white">
+          GUNCELLE
         </button>
       </form>
     </div>
