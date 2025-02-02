@@ -6,6 +6,7 @@
 
 /.vscode
 /gin-backend/_test.go
+/.idea
 
 # Next.js build output
 /gin-frontend/.next
