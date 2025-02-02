@@ -162,6 +162,40 @@ func main() {
 		c.JSON(404, gin.H{"error": "Kullanıcı bulunamadı"})
 	})
 
+	// ************ DELETE ************
+	r.DELETE("/users/:id", func(c *gin.Context) {
+		// URL'den ID'yi al
+		id := c.Param("id")
+
+		// ID'yi integer'a çevir
+		userID, err := strconv.Atoi(id)
+		if err != nil {
+			c.JSON(400, gin.H{"error": "Geçersiz kullanıcı ID'si"})
+			return
+		}
+
+		// Kullanıcıyı bul ve sil
+		found := false
+		for i, user := range users {
+			if user.ID == userID {
+				users = append(users[:i], users[i+1:]...) // Kullanıcıyı slice'dan sil
+				found = true
+				break
+			}
+		}
+
+		// Kullanıcı bulunamazsa hata döndür
+		if !found {
+			c.JSON(404, gin.H{"error": "Kullanıcı bulunamadı"})
+			return
+		}
+
+		// Başarılı yanıt döndür
+		c.JSON(200, gin.H{
+			"status":  "success",
+			"message": "Kullanıcı başarıyla silindi",
+		})
+	})
 	r.Run(":8080")
 
 }

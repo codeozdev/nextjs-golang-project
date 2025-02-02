@@ -14,9 +14,6 @@ export default async function UsersPage() {
         <Link href="/users-ekle" className="bg-blue-500 px-4">
           EKLE
         </Link>
-        <Link href="/users-sil" className="bg-red-500 px-4">
-          SIL
-        </Link>
       </div>
       {users.map((user: UserProps) => (
         <UsersComponent key={user.id} user={user} />
