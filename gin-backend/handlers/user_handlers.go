@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"awesomeProject/models"
-	"database/sql"
 	"github.com/gin-gonic/gin"
+	"gorm.io/gorm"
 	"net/http"
 	"strconv"
-	"strings"
 )
 
-func GetAllUsersHandler(db *sql.DB) gin.HandlerFunc {
+func GetAllUsersHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		users, err := models.GetAllUsers(db)
 		if err != nil {
@@ -30,7 +29,7 @@ func GetAllUsersHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func GetUserByIDHandler(db *sql.DB) gin.HandlerFunc {
+func GetUserByIDHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := strconv.Atoi(idParam)
@@ -39,7 +38,7 @@ func GetUserByIDHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		user, err := models.GetUserByID(db, id)
+		user, err := models.GetUserByID(db, uint(id))
 		if err != nil {
 			c.JSON(http.StatusNotFound, gin.H{"error": "Kullanıcı bulunamadı"})
 			return
@@ -53,19 +52,11 @@ func GetUserByIDHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func CreateUserHandler(db *sql.DB) gin.HandlerFunc {
+func CreateUserHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		var newUser models.User
 		if err := c.ShouldBindJSON(&newUser); err != nil {
 			c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-			return
-		}
-
-		newUser.Name = strings.ToLower(newUser.Name)
-		newUser.Email = strings.ToLower(newUser.Email)
-
-		if !strings.Contains(newUser.Email, "@") {
-			c.JSON(http.StatusBadRequest, gin.H{"error": "Geçersiz email adresi"})
 			return
 		}
 
@@ -83,7 +74,7 @@ func CreateUserHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func UpdateUserHandler(db *sql.DB) gin.HandlerFunc {
+func UpdateUserHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := strconv.Atoi(idParam)
@@ -98,7 +89,7 @@ func UpdateUserHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		err = models.UpdateUser(db, id, updates)
+		err = models.UpdateUser(db, uint(id), updates)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Güncelleme hatası"})
 			return
@@ -111,7 +102,7 @@ func UpdateUserHandler(db *sql.DB) gin.HandlerFunc {
 	}
 }
 
-func DeleteUserHandler(db *sql.DB) gin.HandlerFunc {
+func DeleteUserHandler(db *gorm.DB) gin.HandlerFunc {
 	return func(c *gin.Context) {
 		idParam := c.Param("id")
 		id, err := strconv.Atoi(idParam)
@@ -120,7 +111,7 @@ func DeleteUserHandler(db *sql.DB) gin.HandlerFunc {
 			return
 		}
 
-		err = models.DeleteUser(db, id)
+		err = models.DeleteUser(db, uint(id))
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "Silme hatası"})
 			return

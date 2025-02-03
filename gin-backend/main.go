@@ -5,6 +5,7 @@ import (
 	"awesomeProject/handlers"
 	"awesomeProject/models"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 func CORSMiddleware() gin.HandlerFunc {
@@ -24,12 +25,15 @@ func CORSMiddleware() gin.HandlerFunc {
 
 func main() {
 	// Veritabanı bağlantısını başlat
-	database.InitDB()
+	db, err := database.InitDB()
+	if err != nil {
+		log.Fatalf("Veritabanı bağlantısı başarısız: %v", err)
+	}
 
 	// Mock verileri ekle
-	err := models.SeedMockUsers(database.DB)
+	err = models.SeedMockUsers(db)
 	if err != nil {
-		panic(err)
+		log.Fatalf("Mock veriler eklenemedi: %v", err)
 	}
 
 	r := gin.Default()
@@ -37,11 +41,14 @@ func main() {
 	r.SetTrustedProxies([]string{"192.168.1.0/24", "127.0.0.1"})
 
 	// Route'ları tanımla
-	r.GET("/users", handlers.GetAllUsersHandler(database.DB))
-	r.GET("/users/:id", handlers.GetUserByIDHandler(database.DB))
-	r.POST("/users", handlers.CreateUserHandler(database.DB))
-	r.PATCH("/users/:id", handlers.UpdateUserHandler(database.DB))
-	r.DELETE("/users/:id", handlers.DeleteUserHandler(database.DB))
+	r.GET("/users", handlers.GetAllUsersHandler(db))
+	r.GET("/users/:id", handlers.GetUserByIDHandler(db))
+	r.POST("/users", handlers.CreateUserHandler(db))
+	r.PATCH("/users/:id", handlers.UpdateUserHandler(db))
+	r.DELETE("/users/:id", handlers.DeleteUserHandler(db))
 
-	r.Run(":8080")
+	err = r.Run(":8080")
+	if err != nil {
+		return
+	}
 }

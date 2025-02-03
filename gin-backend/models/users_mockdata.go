@@ -1,11 +1,11 @@
 package models
 
 import (
-	"database/sql"
 	"fmt"
+	"gorm.io/gorm"
 )
 
-func SeedMockUsers(db *sql.DB) error {
+func SeedMockUsers(db *gorm.DB) error {
 	mockUsers := []User{
 		{Name: "Alice Johnson", Email: "alice@example.com"},
 		{Name: "Bob Smith", Email: "bob@example.com"},
@@ -17,14 +17,14 @@ func SeedMockUsers(db *sql.DB) error {
 	for _, user := range mockUsers {
 		// Kullanıcı zaten var mı?
 		var exists bool
-		err := db.QueryRow(`SELECT EXISTS (SELECT 1 FROM users WHERE email = $1)`, user.Email).Scan(&exists)
+		err := db.Model(&User{}).Where("email = ?", user.Email).Select("count(*) > 0").Scan(&exists).Error
 		if err != nil {
 			return fmt.Errorf("kullanıcı kontrolü hatası: %v", err)
 		}
 
 		// Yoksa ekle
 		if !exists {
-			err = CreateUser(db, &user)
+			err = db.Create(&user).Error
 			if err != nil {
 				return fmt.Errorf("mock user eklenemedi: %v", err)
 			}

@@ -1,56 +1,46 @@
 package database
 
 import (
-	"database/sql"
+	"awesomeProject/models"
 	"fmt"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
-	"log"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
 	"os"
 )
 
-var DB *sql.DB
+var DB *gorm.DB
 
-func InitDB() {
+func InitDB() (*gorm.DB, error) {
 	// .env dosyasını yükle
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		return nil, fmt.Errorf("error loading .env file: %v", err)
 	}
 
 	// .env dosyasından veritabanı bilgilerini al
-	connStr := fmt.Sprintf("user=%s dbname=%s password=%s host=%s port=%s sslmode=disable",
-		os.Getenv("DB_USER"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PASSWORD"),
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable",
 		os.Getenv("DB_HOST"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
 		os.Getenv("DB_PORT"),
 	)
 
 	// Veritabanına bağlan
-	DB, err = sql.Open("postgres", connStr)
+	DB, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
-		log.Fatalf("Veritabanına bağlanılamadı: %v", err)
+		return nil, fmt.Errorf("veritabanına bağlanılamadı: %v", err)
 	}
 
-	// Bağlantıyı test et
-	err = DB.Ping()
-	if err != nil {
-		log.Fatalf("Bağlantı testi başarısız: %v", err)
-	}
 	fmt.Println("PostgreSQL'e başarıyla bağlanıldı!")
 
-	// Tablo oluştur
-	createTableQuery := `
-		CREATE TABLE IF NOT EXISTS users (
-			id SERIAL PRIMARY KEY,
-			name TEXT NOT NULL,
-			email TEXT NOT NULL UNIQUE
-		);
-	`
-	_, err = DB.Exec(createTableQuery)
+	// Otomatik Migration
+	err = DB.AutoMigrate(&models.User{})
 	if err != nil {
-		log.Fatalf("Tablo oluşturulamadı: %v", err)
+		return nil, fmt.Errorf("tablo oluşturulamadı: %v", err)
 	}
 	fmt.Println("Tablo başarıyla oluşturuldu!")
+
+	return DB, nil
 }
