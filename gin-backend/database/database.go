@@ -9,8 +9,6 @@ import (
 	"os"
 )
 
-var DB *gorm.DB
-
 func InitDB() (*gorm.DB, error) {
 	// .env dosyasını yükle
 	err := godotenv.Load()
@@ -35,12 +33,19 @@ func InitDB() (*gorm.DB, error) {
 
 	fmt.Println("PostgreSQL'e başarıyla bağlanıldı!")
 
-	// Otomatik Migration
+	// Seed Mock Data for Users
 	err = DB.AutoMigrate(&models.User{})
 	if err != nil {
-		return nil, fmt.Errorf("tablo oluşturulamadı: %v", err)
+		return nil, fmt.Errorf("users tablo oluşturulamadı: %v", err)
 	}
-	fmt.Println("Tablo başarıyla oluşturuldu!")
+	fmt.Println("Users tablo başarıyla oluşturuldu!")
+
+	// Seed Mock Data for Products
+	err = DB.AutoMigrate(&models.Product{})
+	if err != nil {
+		return nil, fmt.Errorf("products tablo oluşturulamadı: %v", err)
+	}
+	fmt.Println("Products tablo başarıyla oluşturuldu!")
 
 	return DB, nil
 }

@@ -33,7 +33,12 @@ func main() {
 	// Mock verileri ekle
 	err = models.SeedMockUsers(db)
 	if err != nil {
-		log.Fatalf("Mock veriler eklenemedi: %v", err)
+		log.Fatalf("Users mock veriler eklenemedi: %v", err)
+	}
+
+	err = models.SeedMockProducts(db)
+	if err != nil {
+		log.Fatalf("Products mock veriler eklenemedi: %v", err)
 	}
 
 	r := gin.Default()
@@ -46,6 +51,13 @@ func main() {
 	r.POST("/users", handlers.CreateUserHandler(db))
 	r.PATCH("/users/:id", handlers.UpdateUserHandler(db))
 	r.DELETE("/users/:id", handlers.DeleteUserHandler(db))
+
+	// Route'ları tanımla
+	r.GET("/products", handlers.GetAllProductsHandler(db))
+	//r.GET("/products/:id", handlers.GetUserByIDHandler(db))
+	//r.POST("/products", handlers.CreateUserHandler(db))
+	//r.PATCH("/products/:id", handlers.UpdateUserHandler(db))
+	//r.DELETE("/products/:id", handlers.DeleteUserHandler(db))
 
 	err = r.Run(":8080")
 	if err != nil {

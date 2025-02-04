@@ -1,4 +1,4 @@
-import UsersComponent from "@/components/UsersComponent";
+import UsersComponent from "@/components/user/users-component";
 import { UserProps } from "@/types/UserType";
 import { getAllUser } from "@/fetchData/get-user";
 import DynamicTitle from "@/components/DynamicTitle";

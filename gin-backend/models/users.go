@@ -11,12 +11,8 @@ type User struct {
 	Email string `json:"email" gorm:"unique;not null"`
 }
 
-// CreateUser yeni kullanıcı ekler
-func CreateUser(db *gorm.DB, user *User) error {
-	user.Name = strings.ToLower(user.Name)
-	user.Email = strings.ToLower(user.Email)
-	return db.Create(user).Error
-}
+//	*************** CRUD OPERATIONS ***************
+//
 
 // GetAllUsers tüm kullanıcıları getirir
 func GetAllUsers(db *gorm.DB) ([]User, error) {
@@ -33,6 +29,13 @@ func GetUserByID(db *gorm.DB, id uint) (*User, error) {
 		return nil, err
 	}
 	return &user, nil
+}
+
+// CreateUser yeni kullanıcı ekler
+func CreateUser(db *gorm.DB, user *User) error {
+	user.Name = strings.ToLower(user.Name)
+	user.Email = strings.ToLower(user.Email)
+	return db.Create(user).Error
 }
 
 // UpdateUser kullanıcıyı günceller

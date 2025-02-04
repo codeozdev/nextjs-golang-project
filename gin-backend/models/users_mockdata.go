@@ -30,6 +30,6 @@ func SeedMockUsers(db *gorm.DB) error {
 			}
 		}
 	}
-	fmt.Println("Mock kullanıcılar başarıyla eklendi veya zaten mevcut!")
+	fmt.Println("Users mock kullanıcılar başarıyla eklendi veya zaten mevcut!")
 	return nil
 }

@@ -1,7 +1,7 @@
-import { User } from "@/types/UserType";
+import { UserProps } from "@/types/UserType";
 import Link from "next/link";
 
-export default function UsersComponent({ user }: { user: User }) {
+export default function UsersComponent({ user }: { user: UserProps }) {
   return (
     <Link
       href={`/users/${user.id}`}
